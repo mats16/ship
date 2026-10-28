@@ -105,6 +105,20 @@ When a new finding belongs to an earlier cluster, reopen the cluster and mark th
 
 Trace the end-to-end lifecycle and the shared state or contract, replace repeated guards with the smallest shared fix, and remove local patches it makes redundant. Cover both the earlier and the current symptom. Do not run another review until the reopened cluster passes the closure gate. If the root fix needs a product or architecture decision outside the scope, leave the cluster open and ask the user rather than spending more rounds.
 
+A cluster that recurs again after a root-cause-mode fix goes to reframe mode instead.
+
+## Reframe when the approach keeps leaking
+
+Root-cause mode moves a fix to a better boundary but keeps the approach. When a cluster recurs after that, the approach itself is producing the findings, and no boundary or extra round will converge it. The usual shapes: code that interprets open-ended input (free text, shell syntax, URLs, number formats), infers a fact from indirect signals instead of reading it, or promises a guarantee wider than anything it can check. Each patch closes one variant and the next pass finds another.
+
+1. Stop patching the cluster. Name the premise the current approach depends on, and restate every member finding as one way that premise fails.
+2. List at least three structurally different approaches, not variants of the current one. Check each of these moves: remove the need (change the data format or contract so nothing is interpreted, such as splitting a field instead of parsing it back); read the fact from its direct source instead of inferring it; observe the effect instead of predicting it; narrow the guarantee to what can be checked and document the rest; move the work to the layer that owns the information; drop the feature.
+3. Gather evidence with every means in scope: the dependency's documentation and source, small experiments, replays of real data or logs, and measured coverage and false positives for each approach. The fixing agent is anchored on its own approach, so also give a fresh subagent the problem, the premise, and the findings without the patch history, and ask it for approaches.
+4. Choose the approach under which the cluster's whole class of findings cannot occur, not the one with the smallest diff. Record what disappears by construction and what new limits it brings.
+5. If the approach stays within the requested behavior and scope, save the current diff outside the repository, revert the cluster's patch stack, implement the approach, rebuild regression scenarios from every member finding, and mark the old cluster `superseded`. Tell the next reviewer the removed premise and ask it to look for any path that still relies on it. If the approach changes user-visible behavior, a recorded decision, or the scope, mark the cluster `blocked`, present the comparison with a recommendation, and ask the user.
+
+Record the premise, the approaches, the evidence, and the decision in the cluster's ledger entry. Reframing runs no review pass and consumes no round.
+
 ## Ingest external findings
 
 `--ingest` runs findings that another workflow recorded, usually PR review feedback from `follow-pr`, through the same clusters as local findings. A PR comment that repeats a bug fixed during the local loop then reopens that cluster instead of getting a second local patch.
@@ -133,6 +147,8 @@ Declare convergence only when all of these hold:
 
 A re-reported dismissal that still holds after re-triage from scratch, including the reviewer's new argument, with no edit, is not actionable; list it in the final report. The ledger alone, an earlier clean review, or unchanged filenames are not proof.
 
+When the round limit is reached with a cluster that recurred, run reframe steps 1 to 4 before stopping and report the recommended approach, rather than only offering more rounds; more rounds of the same approach rarely converge.
+
 Stop without claiming convergence when the round limit is reached with findings, validation is blocked beyond an in-scope repair, the target changes unexpectedly, a fix needs a product decision outside the requested scope, or the convergence signals show the target is too wide; in that last case, recommend how to split it.
 
-Report the rounds used, fixes, dismissals, remaining findings, validation results, target HEAD and worktree state, the ledger path, and the exact stop reason.
+Report the rounds used, fixes, dismissals, reframes with their decision, remaining findings, validation results, target HEAD and worktree state, the ledger path, and the exact stop reason.

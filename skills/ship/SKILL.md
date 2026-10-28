@@ -31,7 +31,7 @@ Run `review-loop` with a target that covers everything the PR will contain:
 - On the default branch, or with no commits ahead of the base: `--uncommitted`.
 - On a branch that already has commits ahead of the base: `--base <base>`. First run `git add -N` on the new untracked files that belong to this change, so the base diff includes them.
 
-Gate: continue to step 3 only when `review-loop` declares convergence. Otherwise stop, report what it reported (rounds, remaining findings, stop reason), and ask whether to open the PR anyway.
+Gate: continue to step 3 only when `review-loop` declares convergence. Otherwise stop, report what it reported (rounds, remaining findings, stop reason, and any recommended reframe), and ask whether to apply the reframe or open the PR anyway.
 
 ## 3. Create the PR
 
