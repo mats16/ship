@@ -18,9 +18,18 @@ Agent skills that take a code change to an approved pull request.
 /plugin install ship@ship
 ```
 
-Then run `/ship:ship` on a change. The other skills are `/ship:simplify`, `/ship:review-loop`, and `/ship:create-pr`.
+Then run `/ship:ship` on a change. The other skills are `/ship:simplify`, `/ship:review-loop`, and `/ship:create-pr`. Update later with `/plugin marketplace update ship`.
 
-### Codex and other harnesses that read `SKILL.md`
+### Codex
+
+```sh
+codex plugin marketplace add mats16/ship
+codex plugin add ship@ship
+```
+
+Then run `$ship:ship` on a change. Update later with `codex plugin marketplace upgrade ship`.
+
+### Other harnesses that read `SKILL.md`
 
 Clone the repository and link the skills into your skills directory, for example:
 
@@ -29,7 +38,7 @@ git clone https://github.com/mats16/ship ~/Projects/ship
 for s in ship simplify review-loop create-pr; do ln -s ~/Projects/ship/skills/$s ~/.agents/skills/$s; done
 ```
 
-Then run `$ship` (Codex) or `/ship`.
+Then run `/ship` (or `$ship`). Installed this way, the skills use their bare names.
 
 ## Usage
 

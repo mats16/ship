@@ -9,7 +9,7 @@ Drive a local change to review convergence without creating or updating a pull r
 
 ## Inputs
 
-Invocation syntax (Codex; in Claude Code use `/ship:review-loop` from the `ship` plugin, or `/review-loop` when installed directly; in Cursor CLI use `/review-loop`; same arguments):
+Invocation syntax (Codex; in Claude Code and Cursor CLI use `/review-loop` with the same arguments; from the `ship` plugin the name is `ship:review-loop`):
 
 `$review-loop [--base <ref> | --uncommitted] [--max <rounds>]`
 

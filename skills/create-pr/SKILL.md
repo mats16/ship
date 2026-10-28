@@ -9,7 +9,7 @@ Turn the current work into a reviewable GitHub PR and stay with it until it is a
 
 ## Inputs
 
-Invocation syntax (Codex; in Claude Code and similar harnesses use `/ship:create-pr` from the `ship` plugin, or `/create-pr` when installed directly, with the same arguments):
+Invocation syntax (Codex; in Claude Code and similar harnesses use `/create-pr` with the same arguments; from the `ship` plugin the name is `ship:create-pr`):
 
 `$create-pr [--ja] [--draft] [--no-follow] [instructions]`
 

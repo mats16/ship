@@ -6,11 +6,11 @@ disable-model-invocation: true
 
 # Ship
 
-Run `simplify`, `review-loop`, and `create-pr` in that order on the current work. Each step follows its own skill; this skill only fixes the order, the targets, and the gates between them. Invoke each one as a skill and follow it fully: in Claude Code, call the Skill tool with `ship:simplify`, `ship:review-loop`, and `ship:create-pr` when this skill comes from the `ship` plugin (the bare names when the skills are installed directly, since a bare `simplify` may otherwise resolve to a different skill); in Codex, use `$simplify` and so on. Do not reimplement them here.
+Run `simplify`, `review-loop`, and `create-pr` in that order on the current work. Each step follows its own skill; this skill only fixes the order, the targets, and the gates between them. Invoke each one as a skill (Claude Code: the Skill tool; Codex: `$<name>`) and follow it fully. When this skill comes from the `ship` plugin, use the plugin names `ship:simplify`, `ship:review-loop`, and `ship:create-pr`, since a bare `simplify` may resolve to a different skill; when the skills are installed directly, use the bare names. Do not reimplement them here.
 
 ## Inputs
 
-`/ship:ship [--ja] [--draft] [--no-follow] [--max <rounds>] [instructions]` (installed directly: `/ship`; Codex: `$ship ...`)
+`/ship:ship [--ja] [--draft] [--no-follow] [--max <rounds>] [instructions]` (Codex: `$ship:ship ...`; installed directly: `/ship` or `$ship`)
 
 - `--max` goes to `review-loop`. Its default applies when omitted.
 - `--ja`, `--draft`, `--no-follow`, and the free-form instructions go to `create-pr`.
