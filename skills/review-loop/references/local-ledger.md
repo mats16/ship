@@ -28,6 +28,7 @@ Current fingerprint: <exact reviewed input fingerprint>
 - Findings: R1-F1, S1 (predicted), ...
 - Order: after C<n> | none; severity; recurrences <count>
 - Merge/split log: <round> merged C<n> | split R1-F2 out | rejected merge with C<n> — reason
+- Reframe: <round>; premise; approaches compared with evidence; decision | none
 - Closure evidence: callers, persistence boundaries, regression scenarios, repository search
 
 ## Findings

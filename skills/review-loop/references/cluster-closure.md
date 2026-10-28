@@ -27,6 +27,7 @@ A singleton cluster takes the fast path when its invariant is local: no stabiliz
 After each round or ingest cycle, record in the ledger the counts of new clusters with at least one finding that survived validation, recurrences, re-dismissals, and missed predictions (new members of an existing cluster that the predict step did not find). Act on them before the next pass:
 
 - **Recurrence after a closed cluster.** The invariant or boundary was too narrow. Restate the invariant one level more general and redo the predict step for that cluster before it can close again.
+- **A second recurrence of one cluster, or missed predictions on one cluster in two consecutive rounds.** Generalizing the invariant and widening the search did not contain it, so the variants form an open set. Reframe the approach as in SKILL.md before the next pass.
 - **A missed prediction.** Record which search missed it and rerun the widened search for every cluster, closed ones included. Reopen any cluster that gains a predicted finding.
 - **The same signature reported again after a dismissal.** Independent reviewers disagree with it. When the step 4 re-triage still holds, make its evidence more concrete in the next reviewer prompt.
 - **Two consecutive rounds after round 1 in which every finding that survives validation opens a new cluster, each round opens at least two such clusters, and the second opens no fewer than the first.** Findings are not converging and the target is too wide for the remaining rounds. Stop and recommend how to split the change rather than spending them.

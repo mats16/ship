@@ -6,7 +6,7 @@ Agent skills that take a code change to an approved pull request.
 |---|---|
 | `ship` | Runs `simplify`, `review-loop`, `create-pr`, and `follow-pr` in that order, with a gate after the review loop. Invoked only by the user. |
 | `simplify` | Deletes, reuses, and straightens the recent diff without changing observable behavior. |
-| `review-loop` | Runs a bounded local review-fix-review loop with a fresh, independent reviewer each round, clustering findings by root cause until a clean review. No GitHub mutations. |
+| `review-loop` | Runs a bounded local review-fix-review loop with a fresh, independent reviewer each round, clustering findings by root cause until a clean review. When a cluster keeps recurring, it stops patching and compares structurally different approaches. No GitHub mutations. |
 | `create-pr` | Branches, commits, and opens or updates the PR. |
 | `follow-pr` | Follows an open PR through CI failures and review comments until it is approved. Review findings go through `review-loop`'s clusters, so they join the local review history. |
 
