@@ -1,0 +1,13 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ship",
+  "description": "Skills that take a code change to an approved pull request.",
+  "owner": { "name": "Kazuki Matsuda" },
+  "plugins": [
+    {
+      "name": "ship",
+      "description": "Simplify, review-loop, and create-pr, chained by /ship.",
+      "source": "./"
+    }
+  ]
+}

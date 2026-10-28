@@ -1,0 +1,4 @@
+interface:
+  display_name: "Simplify"
+  short_description: "Refine recent code without changing behavior"
+  default_prompt: "Use $simplify to refine my recent code changes while preserving behavior."

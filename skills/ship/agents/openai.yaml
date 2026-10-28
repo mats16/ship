@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ship"
+  short_description: "Simplify, review-loop, then open a PR and follow it to approval"
+  default_prompt: "Use $ship to simplify my changes, review them to convergence, and open a PR."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create PR"
+  short_description: "Open a PR and follow it through CI and review to approval"
+  default_prompt: "Use $create-pr to open a PR from my current changes and follow it until it is approved."

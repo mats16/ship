@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Loop"
+  short_description: "Iterate on local code review findings"
+  default_prompt: "Use $review-loop --max 5 on the current branch."
