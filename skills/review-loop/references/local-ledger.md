@@ -13,7 +13,7 @@ Create the ledger with this minimum shape and extend existing entries rather tha
 ```markdown
 # Local review ledger
 Harness / review backend: <harness and selected reviewer or command>
-Reviewer model / effort: <main agent's model ID> / <effort level>
+Reviewer model / effort: <reviewer model ID, marked `(session)` when the backend cannot report it> / <reviewer effort level: the main agent's, unless the review backend states its own>
 Target: base <ref> | uncommitted
 Current fingerprint: <exact reviewed input fingerprint>
 
@@ -43,9 +43,9 @@ Current fingerprint: <exact reviewed input fingerprint>
   - Reply (external only): reply URL; thread resolved yes | no | left to reviewer
 
 ## Rounds
-- Round 1 — fingerprint <value>; result <finding IDs or no findings>; new clusters <n>, recurrences <n>, re-dismissals <n>, missed predictions <n>
+- Round 1 — fingerprint <value>; reviewer <model ID, marked `(session)` when unreported> / <effort>; state running | completed | interrupted | failed; result <finding IDs or no findings>; new clusters <n>, recurrences <n>, re-dismissals <n>, missed predictions <n>
 - PR cycle P1 — target base <ref>, head <sha>; ingested <finding IDs>; new clusters <n>, recurrences <n>, re-dismissals <n>, missed predictions <n>
 ```
 
-Use stable finding and cluster IDs. Keep prior findings, fixes, dispositions, closure evidence, and validation even when later rounds no longer report them. Record the enforcement boundary changed by each fix so a recurrence can be compared with the earlier fix, and keep dismissed findings with their signature and evidence so later rounds can match them and re-check that evidence; raw reviewer transcripts are unnecessary.
+Write one Rounds line per review attempt and update its state in place; a new attempt for the same round gets its own line, and only `completed` lines count toward `--max`. Use stable finding and cluster IDs. Keep prior findings, fixes, dispositions, closure evidence, and validation even when later rounds no longer report them. Record the enforcement boundary changed by each fix so a recurrence can be compared with the earlier fix, and keep dismissed findings with their signature and evidence so later rounds can match them and re-check that evidence; raw reviewer transcripts are unnecessary.
 

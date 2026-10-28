@@ -64,7 +64,7 @@ Then run `/ship` (or `$ship`). Installed this way, the skills use their bare nam
 ## Requirements
 
 - `git` and an authenticated `gh` CLI.
-- In Claude Code, `review-loop` runs each review through the `/code-review` skill in a subagent on the same model and effort as the main agent.
+- In Claude Code, `review-loop` runs each review through the `/code-review medium` skill, which runs in its own forked agent at `medium` effort.
 
 ## License
 
