@@ -30,6 +30,14 @@ codex plugin add ship@ship
 
 Then run `$ship:ship` on a change. Update later with `codex plugin marketplace upgrade ship`.
 
+### Pi
+
+```sh
+pi install git:github.com/mats16/ship
+```
+
+Then run `/skill:ship` on a change. Pi loads the skills under their bare names (`/skill:simplify`, `/skill:review-loop`, ...); if another skill already uses one of these names, Pi keeps the first one it finds and warns at startup. Update later with `pi update git:github.com/mats16/ship`. Pi has no built-in review backend, so unless you or the repository instructions configure one, `review-loop` asks which reviewer to use before its first pass.
+
 ### Other harnesses that read `SKILL.md`
 
 Clone the repository and link the skills into your skills directory, for example:

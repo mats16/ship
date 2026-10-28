@@ -6,11 +6,11 @@ disable-model-invocation: true
 
 # Ship
 
-Run `simplify`, `review-loop`, `create-pr`, and `follow-pr` in that order on the current work. Each step follows its own skill; this skill only fixes the order, the targets, and the gates between them. Invoke each one as a skill (Claude Code: the Skill tool; Codex: `$<name>`) and follow it fully. When this skill comes from the `ship` plugin, use the plugin names `ship:simplify`, `ship:review-loop`, `ship:create-pr`, and `ship:follow-pr`, since a bare `simplify` may resolve to a different skill; when the skills are installed directly, use the bare names. Do not reimplement them here.
+Run `simplify`, `review-loop`, `create-pr`, and `follow-pr` in that order on the current work. Each step follows its own skill; this skill only fixes the order, the targets, and the gates between them. Invoke each one through the harness's skill mechanism (for example, Claude Code: the Skill tool; Codex: `$<name>`; Pi: read `../<name>/SKILL.md` relative to this skill's directory, since Pi drops a skill whose name another skill already took) and follow it fully. When this skill comes from the `ship` plugin, use the plugin names `ship:simplify`, `ship:review-loop`, `ship:create-pr`, and `ship:follow-pr`, since a bare `simplify` may resolve to a different skill; when the skills are installed directly or as a Pi package, use the bare names. Do not reimplement them here.
 
 ## Inputs
 
-`/ship:ship [--ja] [--draft] [--no-follow] [--max <rounds>] [instructions]` (Codex: `$ship:ship ...`; installed directly: `/ship` or `$ship`)
+`/ship:ship [--ja] [--draft] [--no-follow] [--max <rounds>] [instructions]` (Codex: `$ship:ship ...`; installed directly: `/ship` or `$ship`; Pi: `/skill:ship ...`)
 
 - `--max` goes to `review-loop`. Its default applies when omitted.
 - `--ja`, `--draft`, and the free-form instructions go to `create-pr`.
