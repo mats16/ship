@@ -13,7 +13,7 @@ Invoking this skill authorizes, for this PR only: pushing fixes to its branch, r
 
 ## Inputs
 
-`$follow-pr [<pr>]` (Codex syntax; Claude Code uses `/follow-pr`; from the `ship` plugin the name is `ship:follow-pr`)
+`$follow-pr [<pr>]` (Codex syntax; Claude Code uses `/follow-pr`; from the `ship` plugin the name is `ship:follow-pr`; Pi uses `/skill:follow-pr`)
 
 - `<pr>`: a PR number or URL. Default: the PR whose head is the current branch. If there is none, stop and say so.
 - Write replies in the PR's language, which is the language of its title and body.
@@ -42,7 +42,7 @@ If nobody has been requested to review and no automation will request someone (C
 2. **CI failures.** Read the failed job logs before touching code (`gh run view <run-id> --log-failed`) and fix causes within the PR's scope. Re-run a job only when the logs show a transient failure, and only once. Never disable, skip, or weaken checks or tests to get green.
 3. **Review feedback.** Compare the feedback with the ledger's `Source:` and `Reply:` fields to find what is new or still unresolved.
    - Record each new finding in the `review-loop` ledger as `P<cycle>-F<n>` with status `open`, its `Source:` (PR number, kind, comment URL, author), and the reviewer's claim as the scenario. The ledger path and format are in [../review-loop/references/local-ledger.md](../review-loop/references/local-ledger.md). One comment that raises several distinct problems becomes several findings. A finding that re-raises a dismissed or deferred one, with a new argument, is a new finding.
-   - Run `review-loop --base <PR base> --ingest` (plugin name `ship:review-loop`) and follow it fully. It verifies, clusters, fixes, validates, and returns each finding's status and disposition. Do not fix review findings outside it, so every fix passes its closure gate.
+   - Run `review-loop --base <PR base> --ingest` (plugin name `ship:review-loop`; in Pi, read `../review-loop/SKILL.md` relative to this skill's directory) and follow it fully. It verifies, clusters, fixes, validates, and returns each finding's status and disposition. Do not fix review findings outside it, so every fix passes its closure gate.
    - Questions get a direct answer as a reply; record them in the ledger only when the answer reveals a problem. Praise and status messages from bots need nothing.
 4. **Commit and push.** Commit only this PR's changes, never the ledger, following the repository's commit conventions. Push all of a cycle's fixes together, so CI and bots review one head instead of several.
 5. **Respond.**

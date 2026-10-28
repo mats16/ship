@@ -14,7 +14,7 @@ Treat every finding as a hypothesis: verify it against the code and the intended
 
 ## Inputs
 
-`$review-loop [--base <ref> | --uncommitted] [--max <rounds>] [--ingest]` (Codex syntax; Claude Code and Cursor CLI use `/review-loop` with the same arguments; from the `ship` plugin the name is `ship:review-loop`)
+`$review-loop [--base <ref> | --uncommitted] [--max <rounds>] [--ingest]` (Codex syntax; Claude Code and Cursor CLI use `/review-loop` with the same arguments; from the `ship` plugin the name is `ship:review-loop`; Pi uses `/skill:review-loop`)
 
 - `--max`: accept `--max 5` and `--max=5`. A positive integer, default `5`. A round is one completed independent review pass; never exceed `--max`.
 - `--base <ref>`: review the diff this branch would merge into `<ref>`. Compare against `<ref>`'s locally available upstream when that exists and is ahead of the local branch, otherwise against the local branch; if the local branch cannot be resolved, try its configured upstream. Review `git diff <merge-base-sha>`, where the merge base is `git merge-base HEAD <comparison-ref>`. Do not fetch, and do not substitute another target.

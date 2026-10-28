@@ -1,0 +1,12 @@
+{
+  "name": "ship",
+  "version": "0.1.0",
+  "description": "Finish a code change into an approved PR: simplify the diff, run an independent review-fix-review loop to convergence, then open the PR and follow it through CI and review.",
+  "author": "Kazuki Matsuda",
+  "license": "MIT",
+  "repository": "github:mats16/ship",
+  "keywords": ["pi-package", "pull-request", "code-review", "simplify", "github", "workflow"],
+  "pi": {
+    "skills": ["./skills"]
+  }
+}

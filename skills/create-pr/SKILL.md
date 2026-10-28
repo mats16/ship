@@ -9,7 +9,7 @@ Turn the current work into a reviewable GitHub PR. The user should only have to 
 
 ## Inputs
 
-Invocation syntax (Codex; in Claude Code and similar harnesses use `/create-pr` with the same arguments; from the `ship` plugin the name is `ship:create-pr`):
+Invocation syntax (Codex; in Claude Code and similar harnesses use `/create-pr` with the same arguments; from the `ship` plugin the name is `ship:create-pr`; Pi uses `/skill:create-pr`):
 
 `$create-pr [--ja] [--draft] [instructions]`
 
