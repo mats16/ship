@@ -1,61 +1,65 @@
 ---
 name: simplify
-description: Simplify a recent diff when the user requests cleanup or clearer code, preserving observable behavior.
+description: Simplify the recent diff without changing observable behavior - delete what is not needed, reuse what already exists, and make the rest easier to read. Use when the user asks to simplify, clean up, or tidy recent changes.
 ---
 
 # Simplify Recent Code
 
-Refine recent changes conservatively. Prefer readable, explicit code over fewer lines. Make no change when the code is already clear or when an improvement is subjective.
+Make the recent change smaller and easier to read for the next person who maintains it, while its observable behavior stays exactly the same. Every line kept must be read, tested, and fixed later, so code that does not need to exist is the best thing to remove. Readability is the measure, not line count: a shorter form that takes longer to decode is not simpler. "No simplification needed" is a valid and common result.
 
-## Preserve behavior
+## Scope
 
-- Preserve public APIs, data formats, errors, side effects, operation order, logging, and timing-sensitive behavior.
-- Preserve external names and contracts unless the user explicitly requests a change.
-- Preserve comments that explain why, legal notices, and tool directives. Remove only comments that restate clear code or became obsolete.
-- Avoid speculative abstractions and unrelated cleanup.
+1. Read the repository instructions (`AGENTS.md`, `CLAUDE.md`, and similar).
+2. Use what the user names: files, a commit, or a range. Otherwise use staged, unstaged, and untracked changes, or the latest commit when the working tree is clean.
+3. Edit only the changed code and the adjacent code a coherent simplification needs. Read further, including callers, callees, tests, and nearby helpers, to judge each edit, but do not edit that code.
+4. Skip generated files, vendored code, lockfiles, and snapshots unless the user asks.
 
-## Determine scope
+If you cannot tell what belongs to the change, for example because unrelated edits are mixed in, report that instead of guessing broadly.
 
-1. Read repository instructions and identify the current working tree.
-2. Inspect staged, unstaged, and untracked changes. Treat them as the default scope.
-3. When the working tree has no changes, inspect the latest commit.
-4. Limit edits to changed code and directly adjacent code required for a coherent simplification.
-5. Exclude generated files, vendored code, and snapshots unless explicitly requested.
+## What must not change
 
-If the scope cannot be determined safely, report the ambiguity instead of guessing broadly.
+A simplification never changes what callers, users, or operators can observe:
 
-## Simplify conservatively
+- Public APIs, signatures, exported names, data formats, error types and messages, side effects and their order, logging, and timing-sensitive behavior.
+- Validation at trust boundaries, error handling that prevents data loss, security checks, and accessibility. Code you move or merge keeps all of them.
+- Comments that explain why, legal notices, and tool directives such as `eslint-disable` or `# type: ignore`. A `shortcut:` comment that names its limit records a decision; keep it and the code it describes.
 
-Prioritize improvements in this order:
+When an improvement would require changing any of these, leave the code as it is and list the opportunity in the report.
 
-1. Reduce unnecessary nesting, branching, and indirection.
-2. Clarify names and control flow.
-3. Remove redundant calculations, conversions, conditions, and dead local abstractions.
-4. Consolidate related logic when doing so makes its intent clearer.
-5. Replace nested ternaries with readable conditionals or a switch when appropriate.
+## Find candidates
 
-Do not optimize for line count. Do not replace familiar code with clever syntax. Avoid large rewrites when a local change is sufficient.
+For each spot in scope, take the first option that applies:
 
-## Evaluate commonization
+1. **Delete.** Dead code; unused variables, parameters, options, and branches; flexibility nobody asked for; comments that restate the code or became stale; debug leftovers. Before calling something unused, search the whole tree, including tests, config, and string or dynamic references.
+2. **Reuse.** The repository already has a helper, component, or pattern for this. Use it the way the surrounding code does.
+3. **Built-in.** The standard library or platform already does what hand-written code does. When the project has its own helper for it, that wins. Never add a dependency.
+4. **Straighten.** Flatten nesting with early returns, remove indirection that only forwards calls, drop redundant conversions, conditions, and recalculations, replace nested ternaries with plain conditionals, and rename local identifiers whose names mislead. Split a function only when it does unrelated jobs, never to make it shorter.
+5. **Merge.** Consolidate duplicates only when the test below passes.
 
-Commonize duplicated logic only when all of the following hold:
+Leave a spot alone when the gain is a matter of taste, when the new form takes longer to understand, or when the only gain is fewer lines. Match the surrounding code's idiom, naming, and comment density rather than your own preferences. Prefer small local edits over a rewrite.
 
-- The occurrences represent the same concept or domain rule, not merely similar syntax.
-- They should evolve together when that rule changes.
-- The abstraction has a clear intent-revealing name.
-- It reduces repetition without adding flags, callbacks, configuration objects, or branching to accommodate differences.
-- The callers become at least as easy to understand as the duplicated code.
+## Merge duplicates only when it clarifies
 
-Prefer a local helper before introducing a shared module. Do not create vague utility abstractions or generalize for hypothetical reuse. Preserve duplication when the occurrences have different responsibilities, are likely to diverge, or the abstraction would increase coupling or obscure intent.
+Commonize duplicated logic only when all of these hold:
 
-Treat occurrence count only as supporting evidence. Two copies of an important invariant may justify consolidation; three structurally similar blocks with different meanings may not. When uncertain, keep the duplication.
+- The copies express the same rule and must change together when that rule changes; looking alike is not enough.
+- The shared code can have a name that states its intent.
+- It needs no flags, callbacks, configuration, or branches to absorb differences between callers.
+- Each caller reads at least as easily as before.
+
+Prefer a local helper over a new shared module, and do not create a generic utility for hypothetical reuse. The number of copies is only supporting evidence: two copies of an important invariant can justify a merge, while three similar-looking blocks with different meanings do not. When in doubt, keep the duplication.
 
 ## Verify
 
-1. Review the final diff for scope and unintended behavior changes.
-2. Run the smallest relevant available checks, preferring targeted tests, then type checking and linting as appropriate to the repository.
-3. Do not fix unrelated failures. Report failed or skipped checks and why.
+1. Reread the final diff against the original. For each edit, confirm the old behavior still holds on the edge cases the old code handled: empty, zero, missing values, and error paths.
+2. Run the smallest relevant checks the repository offers: targeted tests first, then type checking and linting.
+3. When a check fails because of your edit, fix or revert that edit. Do not fix unrelated failures; report them.
 
 ## Report
 
-Summarize meaningful simplifications and verification results. If no change materially improves the code, state that no simplification was needed.
+- One line per meaningful simplification: what changed and why it is simpler, with `path:line`.
+- Opportunities left alone because they would change behavior or a contract, if any.
+- Checks run with their results, and any check skipped with the reason.
+- `Not checked:` in one line, when something that mattered could not be verified.
+
+When nothing improves the code, say `No simplification needed.` and what you checked in one line.

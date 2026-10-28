@@ -1,19 +1,20 @@
 ---
 name: ship
-description: Finish the current code change and open a PR in one run - simplify the diff, drive a local review-fix-review loop to convergence, then create the PR and follow it to approval. Use when the user asks to ship, wrap up, or finish a change into a PR.
+description: Finish the current code change and open a PR in one run - simplify the diff, drive a local review-fix-review loop to convergence, create the PR, then follow it to approval. Use when the user asks to ship, wrap up, or finish a change into a PR.
 disable-model-invocation: true
 ---
 
 # Ship
 
-Run `simplify`, `review-loop`, and `create-pr` in that order on the current work. Each step follows its own skill; this skill only fixes the order, the targets, and the gates between them. Invoke each one as a skill (Claude Code: the Skill tool; Codex: `$<name>`) and follow it fully. When this skill comes from the `ship` plugin, use the plugin names `ship:simplify`, `ship:review-loop`, and `ship:create-pr`, since a bare `simplify` may resolve to a different skill; when the skills are installed directly, use the bare names. Do not reimplement them here.
+Run `simplify`, `review-loop`, `create-pr`, and `follow-pr` in that order on the current work. Each step follows its own skill; this skill only fixes the order, the targets, and the gates between them. Invoke each one as a skill (Claude Code: the Skill tool; Codex: `$<name>`) and follow it fully. When this skill comes from the `ship` plugin, use the plugin names `ship:simplify`, `ship:review-loop`, `ship:create-pr`, and `ship:follow-pr`, since a bare `simplify` may resolve to a different skill; when the skills are installed directly, use the bare names. Do not reimplement them here.
 
 ## Inputs
 
 `/ship:ship [--ja] [--draft] [--no-follow] [--max <rounds>] [instructions]` (Codex: `$ship:ship ...`; installed directly: `/ship` or `$ship`)
 
 - `--max` goes to `review-loop`. Its default applies when omitted.
-- `--ja`, `--draft`, `--no-follow`, and the free-form instructions go to `create-pr`.
+- `--ja`, `--draft`, and the free-form instructions go to `create-pr`.
+- `--no-follow` skips step 4.
 
 ## 0. Check there is something to ship
 
@@ -36,6 +37,10 @@ Gate: continue to step 3 only when `review-loop` declares convergence. Otherwise
 
 Run `create-pr` with the passed-through flags and instructions. Validation from steps 1 and 2 counts as run in this session; list those exact commands and results in the PR body instead of rerunning them, unless the code changed afterwards.
 
+## 4. Follow the PR
+
+Skip this step with `--no-follow`. Otherwise run `follow-pr` on the PR from step 3. PR review findings land in the same ledger as step 2's, so a reviewer who finds a variant of a locally fixed bug reopens that cluster.
+
 ## Report
 
-One short section per step: what `simplify` changed, the `review-loop` result (rounds, fixes, dismissals), and the PR URL with its follow-up state.
+One short section per step: what `simplify` changed, the `review-loop` result (rounds, fixes, dismissals), the PR URL, and the `follow-pr` result (final state, findings handled, recurrences of local clusters).
