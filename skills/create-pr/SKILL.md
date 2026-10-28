@@ -1,21 +1,20 @@
 ---
 name: create-pr
-description: Create or update a GitHub pull request for the current work, then follow it through CI failures and review comments until it is approved. Creates the branch and commits transparently when the work is not committed yet. Use when the user asks to open, create, submit, or update a PR. Writes in English by default; `--ja` writes the PR in Japanese.
+description: Create or update a GitHub pull request for the current work. Creates the branch and commits transparently when the work is not committed yet. Use when the user asks to open, create, submit, or update a PR. Writes in English by default; `--ja` writes the PR in Japanese.
 ---
 
 # Create PR
 
-Turn the current work into a reviewable GitHub PR and stay with it until it is approved. The user should only have to ask for a PR: handle branching, committing, pushing, the description, and the follow-up yourself. Stop for input only in the cases listed under "When to ask".
+Turn the current work into a reviewable GitHub PR. The user should only have to ask for a PR: handle branching, committing, pushing, and the description yourself. Stop for input only in the cases listed under "When to ask".
 
 ## Inputs
 
 Invocation syntax (Codex; in Claude Code and similar harnesses use `/create-pr` with the same arguments; from the `ship` plugin the name is `ship:create-pr`):
 
-`$create-pr [--ja] [--draft] [--no-follow] [instructions]`
+`$create-pr [--ja] [--draft] [instructions]`
 
-- `--ja`: write the PR title, body, and your PR comments and replies in Japanese. The default is English.
+- `--ja`: write the PR title and body in Japanese. The default is English.
 - `--draft`: open the PR as a draft, or convert an existing PR to a draft. Without this flag, open a regular PR and leave an existing PR's draft state alone.
-- `--no-follow`: stop once the PR is created or updated and its URL is reported, skipping the follow-up in step 6.
 - Free-form instructions, such as a base branch, an issue to link, reviewers, or scope, take precedence over the defaults below.
 
 ## 1. Inspect the current state
@@ -32,6 +31,7 @@ For a new PR whose base is not the default branch (a stacked PR), confirm the ba
 
 - If you are on the base or default branch with uncommitted changes or unpushed commits, create a branch at the current HEAD with `git switch -c <name>`. Uncommitted changes carry over. If unpushed commits came along, reset the local base branch to its upstream (`git branch -f <base> <base>@{upstream}`) so those commits live only on the PR branch.
 - Harnesses sometimes auto-create branch names that contain non-ASCII text from the task title. If such a branch has not been pushed, rename it with `git branch -m`. If it has been pushed and already has a PR, leave it and ask the user: renaming a PR's head branch on GitHub deletes the old head, which closes the PR.
+- When a branch is created or renamed and a `review-loop` ledger exists under the old name (`.review/<old-branch>.md`), move it to the new name so the review history follows the work.
 - Name new branches after the repository's convention (look at recent branches and merged PRs). If there is no visible convention, use `<agent>/<short-kebab-summary>`, for example `codex/fix-login-redirect` or `claude/add-retry-backoff`.
 
 ## 3. Commit
@@ -68,13 +68,9 @@ Add a section only when important information has no place in the template, such
 - **New PR:** `gh pr create --base <base> --head <branch> --title <title> --body-file <tmp-file>`, adding `--draft` only when the flag was given. Pass the body through a temporary file so shell quoting can't corrupt it.
 - **Existing PR:** push any new commits and update the body with `gh pr edit --body-file <tmp-file>`. Leave the title, base, and draft state unchanged unless the user asked otherwise; with `--draft`, convert a ready PR to a draft with `gh pr ready <pr> --undo`. Never mark a draft ready for review unless the user asks. Read the current body first and keep what others added, such as checked boxes, links, and notes.
 - Add reviewers, labels, or assignees only when the user asked for them. Repository automation such as CODEOWNERS handles the rest.
-- Share the PR URL with the user as soon as the PR exists, before the follow-up starts.
+- Report the PR URL.
 
-## 6. Follow up until approved
-
-Skip this step when `--no-follow` was given. Otherwise read [references/follow-up.md](references/follow-up.md) and run its loop on the PR. Invoking this skill authorizes that loop for this PR: pushing fixes, replying to and resolving review threads, and re-requesting review from reviewers whose feedback you addressed. The authorization ends when the loop stops or the user cancels or changes its scope.
-
-For a draft PR, run the loop for CI and any feedback that arrives, but don't wait for approval: stop once checks pass and no actionable finding remains, since a draft isn't ready for review. If the user asks you to wait for approval anyway, keep going.
+This skill ends once the PR is created or updated. To follow the PR through CI and review, run `follow-pr` on it; `ship` does that as its next step.
 
 ## When to ask
 
@@ -83,7 +79,6 @@ Ask the user only when:
 - the base cannot be determined, or a new PR's base is not the default branch and the user didn't name it,
 - it is unclear whether a change belongs in this PR,
 - a pushed branch that has a PR would need renaming,
-- a force-push would be needed to rewrite published history,
-- review feedback requires a product or architecture decision beyond the PR's scope.
+- a force-push would be needed to rewrite published history.
 
 Otherwise decide, act, and explain what you did in the report.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Follow PR"
+  short_description: "Follow a PR through CI and review to approval"
+  default_prompt: "Use $follow-pr to follow my current PR until it is approved."

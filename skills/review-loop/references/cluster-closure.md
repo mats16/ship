@@ -2,7 +2,7 @@
 
 ## Clustering algorithm
 
-Run these steps over all current findings plus every historical cluster and dismissal in the ledger. Do it before any edit, and again for downstream clusters after each upstream fix.
+Run these steps over all current findings plus every historical cluster and dismissal in the ledger, whatever their source: local passes, predicted siblings, and ingested external findings share one set of clusters. Do it before any edit, and again for downstream clusters after each upstream fix.
 
 1. **Normalize.** For each finding, record trigger, lifecycle phase, persistence sink, effect, and a signature `<state owner> / <invariant> @ <enforcement boundary>`.
    - The state owner is the module, table, store, or coordinator that owns the state, not the file the reviewer cited.
@@ -24,7 +24,7 @@ A singleton cluster takes the fast path when its invariant is local: no stabiliz
 
 ## Convergence signals
 
-After each round, record in the ledger the counts of new clusters with at least one finding that survived validation, recurrences, re-dismissals, and missed predictions (new members of an existing cluster that the predict step did not find). Act on them before the next pass:
+After each round or ingest cycle, record in the ledger the counts of new clusters with at least one finding that survived validation, recurrences, re-dismissals, and missed predictions (new members of an existing cluster that the predict step did not find). Act on them before the next pass:
 
 - **Recurrence after a closed cluster.** The invariant or boundary was too narrow. Restate the invariant one level more general and redo the predict step for that cluster before it can close again.
 - **A missed prediction.** Record which search missed it and rerun the widened search for every cluster, closed ones included. Reopen any cluster that gains a predicted finding.
