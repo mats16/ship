@@ -10,7 +10,7 @@ Drive a local change until a fresh, independent review of the current code finds
 - **Independence.** The agent that fixes the code cannot see its own blind spots, so every pass runs in a fresh reviewer context on the same model as the main agent.
 - **Root causes, not symptoms.** Findings are clustered by the invariant they violate. A cluster closes only when that invariant holds at the boundary every violating path crosses, so the next pass does not rediscover the same bug one caller at a time. A finding that matches an earlier cluster means the earlier fix was too narrow.
 
-Treat every finding as a hypothesis: verify it against the code and the intended behavior before editing. This skill never touches GitHub: no `gh`, comments, commits, pushes, or network fetches. Commit or push only when the user separately asks.
+Treat every finding as a hypothesis: verify it against the code and the intended behavior before editing. A finding is actionable only when it survives validation as blocking, P0 to P2 under the [severity rubric](references/cluster-closure.md#severity). A fresh reviewer always finds another P3, so P3 findings never hold the loop open; the rubric's section says when to fix or defer them. This skill never touches GitHub: no `gh`, comments, commits, pushes, or network fetches. Commit or push only when the user separately asks.
 
 ## Inputs
 
@@ -33,16 +33,16 @@ Every pass runs in a fresh subagent, or the backend's isolated equivalent, on th
 - **Claude Code:** invoke `/code-review medium` yourself through the Skill tool for every pass, with the exact resolved target and review criteria as its arguments, keeping the `medium` level and inventing no flags (never `--fix` or `--comment`). `/code-review` runs as its own forked agent without this conversation's history, so do not wrap it in another subagent.
   - Model and effort rule: its level sets its effort, so the reviewer effort is `medium`, not the main agent's. The forked agent runs on the session's model and cannot report it, so record the model ID from your system prompt, marked `(session)`, in each pass's Rounds entry, and ask nothing before the first pass.
   - A forked run returns `completed (forked execution)` with the review result. If the Skill tool instead loads the review instructions into your own turn, do not follow them, since that would be a self-review: the backend is unavailable in this session.
-- **Cursor CLI:** follow the `/review-bugbot` launch instructions for every pass: exactly one fresh `bugbot` subagent with `description: "Bugbot"` and `run_in_background: false`, using its fixed prompt shape. Set `Full Repository Path` to the repository root. For `--uncommitted`, use `Diff: uncommitted changes`; for `--base`, use `Diff: branch changes` with `Base Branch: <resolved comparison ref>`. Put the fingerprint, the `.review/` exclusion, the read-only contract, the cluster context from the contract below, and any one-off user criteria in `Custom Instructions`. Skip its branch-checkout step, since the loop reviews the current checkout. Its no-fix and no-rerun rules bind the subagent only; this loop still triages, fixes, and runs later passes. Apply its single retry on invocation failure. Do not substitute `/review-security`.
+- **Cursor CLI:** follow the `/review-bugbot` launch instructions for every pass: exactly one fresh `bugbot` subagent with `description: "Bugbot"` and `run_in_background: false`, using its fixed prompt shape. Set `Full Repository Path` to the repository root. For `--uncommitted`, use `Diff: uncommitted changes`; for `--base`, use `Diff: branch changes` with `Base Branch: <resolved comparison ref>`. Put the fingerprint, the `.review/` exclusion, the read-only contract, the severity rubric and cluster context from the contract below, and any one-off user criteria in `Custom Instructions`. Skip its branch-checkout step, since the loop reviews the current checkout. Its no-fix and no-rerun rules bind the subagent only; this loop still triages, fixes, and runs later passes. Apply its single retry on invocation failure. Do not substitute `/review-security`.
 - **Other harnesses:** use the review backend that the user, the repository instructions, or the harness configures. If none is configured, ask which reviewer or review command to use before the first pass. Do not guess a provider or default to Codex. Keep the choice across continuation; ask again only after a material change.
 
 When a backend is unavailable or cannot meet the contract below, report the limitation and ask for an alternative. Never substitute another reviewer, model, or effort than this section specifies, and never count a self-review in the fixing agent's context as a pass. The backend changes only how a review runs; round limits, fingerprints, clustering, validation, and convergence rules stay the same.
 
 ### Reviewer contract
 
-Every backend inspects the complete resolved diff, the applicable `AGENTS.md`, surrounding code, tests, and call sites; returns actionable findings or an explicit no-findings result; and makes no file changes or external mutations.
+Every backend inspects the complete resolved diff, the applicable `AGENTS.md`, surrounding code, tests, and call sites; returns every finding, tagged by severity when the backend accepts the request, or an explicit no-findings result; and makes no file changes or external mutations.
 
-Give the reviewer the exact target, the fingerprint, the `.review/` exclusion, and any one-off user criteria. For uncommitted changes, include staged, unstaged, and untracked files; for a base review, use the resolved comparison ref and merge base. From the second pass on, also give it the invariants of closed clusters, from every source, to re-check for bypasses, and the dismissed signatures with their evidence, asking it to report a dismissed item again whenever that evidence no longer holds for the current code. These add checks and never narrow the review.
+Give the reviewer the exact target, the fingerprint, the `.review/` exclusion, any one-off user criteria, and the rubric's four grades verbatim, asking it to list findings most severe first and start every summary with its tag (`[P0]` to `[P3]`) so severity comes from the independent reviewer rather than the fixing agent. For uncommitted changes, include staged, unstaged, and untracked files; for a base review, use the resolved comparison ref and merge base. From the second pass on, also give it the invariants of closed clusters, from every source, to re-check for bypasses, and the dismissed signatures with their evidence, asking it to report a dismissed item again whenever that evidence no longer holds for the current code. These add checks and never narrow the review.
 
 Before accepting a result, verify what was actually reviewed. A failed invocation or an incomplete review is not a completed round.
 
@@ -63,19 +63,19 @@ Read [references/local-ledger.md](references/local-ledger.md) when starting or r
 
 ## Start and resume
 
-1. Read the applicable `AGENTS.md`, then inspect `git status`, the current branch, HEAD, and the complete target diff. Preserve unrelated changes.
+1. Read the applicable `AGENTS.md` and [references/cluster-closure.md](references/cluster-closure.md), whose severity rubric goes to every reviewer, then inspect `git status`, the current branch, HEAD, and the complete target diff. Preserve unrelated changes.
 2. Resolve the target and the ledger path. If the ledger exists, reconstruct open findings, earlier fixes, and historical clusters from it.
 3. Partition a cross-cutting target by state owner or lifecycle coordinator. Every changed subsystem must pass its cluster gates before the verification pass. If the subsystems cannot be reasoned about independently, recommend splitting the change instead of spending rounds.
 4. Record a content fingerprint for the exact reviewed inputs, excluding the ledger: HEAD, the merge base for `--base`, and hashes covering the reviewed diff and untracked files when applicable. A review result is valid only for its fingerprint.
-5. After an interruption, compaction, or any uncertainty, reread the ledger and recompute the fingerprint, then resume from the earliest incomplete step. If existing changes cannot be attributed safely, stop instead of overwriting them. Repeating a read-only review is safe; repeating an uncertain edit is not.
+5. After an interruption, compaction, or any uncertainty, reread the ledger and the rubric and recompute the fingerprint, then resume from the earliest incomplete step. If existing changes cannot be attributed safely, stop instead of overwriting them. Repeating a read-only review is safe; repeating an uncertain edit is not.
 
 ## Triage before editing
 
 Cluster every finding before editing anything, using [references/cluster-closure.md](references/cluster-closure.md). In short:
 
-1. **Signature.** Record each finding's trigger, lifecycle phase, persistence sink, effect, and signature `<state owner> / <invariant> @ <enforcement boundary>`. State the invariant as a property the state must keep, not as the symptom or the cited line.
+1. **Severity, then signature.** Grade each finding as the reference's severity section says; P3 findings take only the history step below. For each finding, record its trigger, lifecycle phase, persistence sink, effect, and signature `<state owner> / <invariant> @ <enforcement boundary>`. State the invariant as a property the state must keep, not as the symptom or the cited line.
 2. **Strong match, then weak.** The same invariant on the same state owner joins one cluster, with boundary `?` until the boundary shared by all members is found. A shared phase, state owner, sink, file, or symptom alone only proposes a merge; accept it only when one hypothesis and one fix boundary explain both.
-3. **History.** Test every finding against every historical cluster and dismissal, by meaning rather than wording, whatever their source. A cluster match is a recurrence at any boundary. A dismissal match is re-dismissed only after re-triage from scratch against the current code, including any new argument from the reviewer.
+3. **History.** Test every finding against every historical cluster, dismissal, and deferred finding, by meaning rather than wording, whatever their source. For a blocking finding, a cluster match is a recurrence at any boundary; the severity section says what a P3 match means. A dismissal match is re-dismissed only after re-triage from scratch against the current code, including any new argument from the reviewer.
 4. **Split or merge.** Keep a cluster only when its hypothesis predicts every member and names one fix boundary; otherwise split it. Merge clusters only when one hypothesis predicts both and one fix boundary covers both.
 5. **Predict siblings.** Search the target diff and call graph for unreported violations of each cluster's invariant; verify each one, then fix or dismiss it before closure.
 6. **Order.** Fix upstream boundaries first, then by severity and recurrence; re-triage downstream clusters after each upstream fix.
@@ -86,7 +86,7 @@ Before treating a cluster as fixed, it must pass the closure gate in the referen
 
 ## Each round
 
-1. Recompute the fingerprint and run one fresh independent review. Record the fingerprint and every actionable finding before editing.
+1. Recompute the fingerprint and run one fresh independent review. Record the fingerprint and every finding before editing.
 2. Reconcile the findings with the ledger's history and validate them against the intended behavior, all callers, sibling paths, tests, and the complete diff. Dismiss false positives with concrete evidence. Then triage them into clusters.
 3. For every valid cluster, complete any required inventory, then fix the narrowest shared boundary that restores the invariant. Avoid per-caller guards unless the callers' contracts intentionally differ.
 4. Add or update the smallest regression scenarios that satisfy the closure gate, without duplicating equivalent tests.
@@ -121,7 +121,7 @@ Record the premise, the approaches, the evidence, and the decision in the cluste
 `--ingest` runs findings that another workflow recorded, usually PR review feedback from `follow-pr`, through the same clusters as local findings. A PR comment that repeats a bug fixed during the local loop then reopens that cluster instead of getting a second local patch.
 
 1. Resolve the target and the ledger path as usual, creating the ledger if it does not exist. The caller has added each new external finding to the ledger with status `open`, a `Source:`, and no cluster.
-2. Verify each one against the current code, then triage all of them against the full history, local and external, as in [Triage before editing](#triage-before-editing). A match with any earlier cluster is a recurrence and uses root-cause mode.
+2. Verify each one against the current code. External findings count as P2, as the severity section says. Then triage all of them against the full history, local and external, as in [Triage before editing](#triage-before-editing). A match with any earlier cluster is a recurrence and uses root-cause mode.
 3. Fix, cover, close, and validate as in steps 3 to 6 of [Each round](#each-round), including the predicted siblings.
 4. Give every external finding a final status and a disposition written for the reviewer who raised it:
    - `fixed`: what changed and at which boundary.
@@ -138,7 +138,7 @@ Repair validation failures caused by the requested changes, and rerun the affect
 
 Declare convergence only when all of these hold:
 
-- a fresh independent review after the latest edit returns no actionable findings for the current fingerprint;
+- a fresh independent review after the latest edit returns no actionable findings for the current fingerprint; its P3 findings are deferred as the rubric's section says, so that review stays current;
 - every subsystem and cluster is closed, where superseded or dismissed counts as closed;
 - required validation passes.
 
@@ -146,6 +146,6 @@ A re-reported dismissal that still holds after re-triage from scratch, including
 
 When the round limit is reached with a cluster that recurred, run reframe steps 1 to 4 before stopping and report the recommended approach, rather than only offering more rounds; more rounds of the same approach rarely converge.
 
-Stop without claiming convergence when the round limit is reached with findings, validation is blocked beyond an in-scope repair, the target changes unexpectedly, a fix needs a product decision outside the requested scope, or the convergence signals show the target is too wide; in that last case, recommend how to split it.
+Stop without claiming convergence when the round limit is reached with actionable findings, validation is blocked beyond an in-scope repair, the target changes unexpectedly, a fix needs a product decision outside the requested scope, or the convergence signals show the target is too wide; in that last case, recommend how to split it.
 
-Report the rounds used, fixes, dismissals, reframes with their decision, remaining findings, validation results, target HEAD and worktree state, the ledger path, and the exact stop reason.
+Report the rounds used, fixes, dismissals, reframes with their decision, remaining findings, deferred P3 findings, validation results, target HEAD and worktree state, the ledger path, and the exact stop reason.

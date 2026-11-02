@@ -1,5 +1,28 @@
 # Clustering, Stabilization, and Cluster Closure
 
+## Severity
+
+Grade each finding by its concrete failure scenario, not by how sure the reviewer sounds. Send the loop's reviewer these four grades verbatim:
+
+- **P0:** data loss, corruption, or a security exposure on a normal path.
+- **P1:** a crash, hang, or wrong result on a normal path, or requested behavior that is missing.
+- **P2:** a crash, hang, wrong result, or broken documented contract on a reachable path that needs uncommon but realistic input or state; docs that state something false or omit a step, so that a reader takes a wrong action. Text a careful reader still follows correctly is P3, however it could be worded better.
+- **P3:** everything else: a trigger that needs contrived input or an already broken environment, parity with another implementation beyond the documented contract, cosmetic output, imprecise wording, style, readability, or thin tests or docs where nothing stated is false and no missing step leads to a wrong action.
+
+Who sets the grade:
+
+- A tag counts only when it is one of `[P0]` to `[P3]` from the loop's own reviewer, which received these grades. Every other finding is P2: untagged ones, other tag forms, tags on another scale (a `codex review` fallback, a PR bot), predicted siblings, and external findings.
+- The fixing agent raises a tag whenever validation shows a worse scenario than the tag describes, and never lowers one; when a scenario does not hold, it dismisses the finding with evidence instead.
+- When a backend returns no tags at all, every finding is blocking, as it was before this rubric; say so in the report.
+
+What each grade does:
+
+- P0 to P2 are blocking and go through the clustering algorithm below.
+- A P3 finding takes only the history-match step, after validation. A match with a dismissal is re-triaged as that step says, and when the dismissal no longer holds, the finding takes the higher of its tag and the dismissed finding's. A match with a cluster or a deferred finding is recorded under it as a P3 member and reopens nothing.
+- Any other P3 finding is fixed in the same round when the fix is local (one spot, no shared or durable state, nothing else relies on the changed behavior), with a regression only when the fix changes behavior; otherwise mark it `deferred` with a suggested follow-up.
+- In a review pass with no actionable finding, that is no P0 to P2 left after validation and the history match, defer every P3 instead of editing, so that pass stays the final review.
+- A P3 finding opens no stabilization, counts toward no convergence signal, and never by itself justifies another pass.
+
 ## Clustering algorithm
 
 Run these steps over all current findings plus every historical cluster and dismissal in the ledger, whatever their source: local passes, predicted siblings, and ingested external findings share one set of clusters. Do it before any edit, and again for downstream clusters after each upstream fix.
@@ -24,7 +47,7 @@ A singleton cluster takes the fast path when its invariant is local: no stabiliz
 
 ## Convergence signals
 
-After each round or ingest cycle, record in the ledger the counts of new clusters with at least one finding that survived validation, recurrences, re-dismissals, and missed predictions (new members of an existing cluster that the predict step did not find). Act on them before the next pass:
+The signals below count blocking findings only. After each round, also record the number of P3 findings; after each round or ingest cycle, record in the ledger the counts of new clusters with at least one finding that survived validation, recurrences, re-dismissals, and missed predictions (new members of an existing cluster that the predict step did not find). Act on them before the next pass:
 
 - **Recurrence after a closed cluster.** The invariant or boundary was too narrow. Restate the invariant one level more general and redo the predict step for that cluster before it can close again.
 - **A second recurrence of one cluster, or missed predictions on one cluster in two consecutive rounds.** Generalizing the invariant and widening the search did not contain it, so the variants form an open set. Reframe the approach as in SKILL.md before the next pass.

@@ -43,4 +43,4 @@ Skip this step with `--no-follow`. Otherwise run `follow-pr` on the PR from step
 
 ## Report
 
-One short section per step: what `simplify` changed, the `review-loop` result (rounds, fixes, dismissals), the PR URL, and the `follow-pr` result (final state, findings handled, recurrences of local clusters).
+One short section per step: what `simplify` changed, the `review-loop` result (rounds, fixes, dismissals, deferred P3 findings), the PR URL, and the `follow-pr` result (final state, findings handled, recurrences of local clusters).

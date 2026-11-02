@@ -34,6 +34,7 @@ Current fingerprint: <exact reviewed input fingerprint>
 ## Findings
 - R1-F1 [P2] path:line — title  (predicted findings use S<n>; external findings use P<cycle>-F<n>)
   - Source: local pass R1 | predicted | PR #<n> <review | thread | comment> <url> by <login>
+  - Severity: reviewer <tag | none>; triage <tag, the one the header shows> and, when it differs, the evidence
   - Scenario/effect: ...
   - Signature: <state owner> / <invariant> @ <enforcement boundary>
   - Trigger / phase / persistence sink: ...
@@ -43,7 +44,7 @@ Current fingerprint: <exact reviewed input fingerprint>
   - Reply (external only): reply URL; thread resolved yes | no | left to reviewer
 
 ## Rounds
-- Round 1 — fingerprint <value>; reviewer <model ID, marked `(session)` when unreported> / <effort>; state running | completed | interrupted | failed; result <finding IDs or no findings>; new clusters <n>, recurrences <n>, re-dismissals <n>, missed predictions <n>
+- Round 1 — fingerprint <value>; reviewer <model ID, marked `(session)` when unreported> / <effort>; state running | completed | interrupted | failed; result <finding IDs or no findings>; actionable <n>, P3 <n>; new clusters <n>, recurrences <n>, re-dismissals <n>, missed predictions <n>
 - PR cycle P1 — target base <ref>, head <sha>; ingested <finding IDs>; new clusters <n>, recurrences <n>, re-dismissals <n>, missed predictions <n>
 ```
 
