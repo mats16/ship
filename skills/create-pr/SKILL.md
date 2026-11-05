@@ -1,6 +1,7 @@
 ---
 name: create-pr
 description: Create or update a GitHub pull request for the current work. Creates the branch and commits transparently when the work is not committed yet. Use when the user asks to open, create, submit, or update a PR. Writes in English by default; `--ja` writes the PR in Japanese.
+allowed-tools: Bash(git:*) Bash(gh:*)
 ---
 
 # Create PR
