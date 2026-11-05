@@ -88,7 +88,7 @@ Before treating a cluster as fixed, it must pass the closure gate in the referen
 
 1. Recompute the fingerprint and run one fresh independent review. Record the fingerprint and every finding before editing.
 2. Reconcile the findings with the ledger's history and validate them against the intended behavior, all callers, sibling paths, tests, and the complete diff. Dismiss false positives with concrete evidence. Then triage them into clusters.
-3. For every valid cluster, complete any required inventory, then fix the narrowest shared boundary that restores the invariant. Avoid per-caller guards unless the callers' contracts intentionally differ.
+3. For every valid cluster, complete any required inventory, then fix the narrowest shared boundary that restores the invariant. Avoid per-caller guards unless the callers' contracts intentionally differ. In prose, fix by deleting or narrowing the claim, or by editing the one place the rule is stated; adding a clause, exception, or hedge to close one reading is the prose form of a per-caller guard.
 4. Add or update the smallest regression scenarios that satisfy the closure gate, without duplicating equivalent tests.
 5. Apply the closure gate over the complete target diff and the relevant call graph. If it fails, investigate rather than stacking another patch or starting a review.
 6. Run focused validation and the practical checks the repository requires, and record the commands and results in the ledger.

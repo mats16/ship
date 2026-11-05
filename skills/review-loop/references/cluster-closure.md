@@ -19,7 +19,7 @@ What each grade does:
 
 - P0 to P2 are blocking and go through the clustering algorithm below.
 - A P3 finding takes only the history-match step, after validation. A match with a dismissal is re-triaged as that step says, and when the dismissal no longer holds, the finding takes the higher of its tag and the dismissed finding's. A match with a cluster or a deferred finding is recorded under it as a P3 member and reopens nothing.
-- Any other P3 finding is fixed in the same round when the fix is local (one spot, no shared or durable state, nothing else relies on the changed behavior), with a regression only when the fix changes behavior; otherwise mark it `deferred` with a suggested follow-up.
+- Any other P3 finding is fixed in the same round when the fix is local (one spot, no shared or durable state, nothing else relies on the changed behavior), with a regression only when the fix changes behavior; otherwise mark it `deferred` with a suggested follow-up. A P3 finding in prose (Markdown, docs, and instructions an agent reads) is always deferred, since each wording fix is new text for the next pass to review.
 - In a review pass with no actionable finding, that is no P0 to P2 left after validation and the history match, defer every P3 instead of editing, so that pass stays the final review.
 - A P3 finding opens no stabilization, counts toward no convergence signal, and never by itself justifies another pass.
 

@@ -23,6 +23,7 @@ A simplification never changes what callers, users, or operators can observe:
 - Public APIs, signatures, exported names, data formats, error types and messages, side effects and their order, logging, and timing-sensitive behavior.
 - Validation at trust boundaries, error handling that prevents data loss, security checks, and accessibility. Code you move or merge keeps all of them.
 - Comments that explain why, legal notices, and tool directives such as `eslint-disable` or `# type: ignore`. A `shortcut:` comment that names its limit records a decision; keep it and the code it describes.
+- In Markdown an agent reads (SKILL.md, AGENTS.md, prompts, references), behavior is what the reading agent does. Keep reasons, conditions, exceptions, and examples, and never replace one with a pointer to another section. A rule repeated across files may be deliberate, since an agent may load only one of them; report such duplicates instead of merging them.
 
 When an improvement would require changing any of these, leave the code as it is and list the opportunity in the report.
 
