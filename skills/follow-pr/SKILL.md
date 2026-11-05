@@ -1,6 +1,7 @@
 ---
 name: follow-pr
 description: Follow an open GitHub PR until it is approved - wait for CI and reviews, fix failures and valid findings, reply to every comment, and keep the PR mergeable. Review findings go through review-loop's root-cause clusters, so a PR comment that repeats a locally fixed bug reopens that cluster. Use when the user asks to follow, babysit, or watch a PR until approval.
+allowed-tools: Bash(git:*) Bash(gh:*)
 ---
 
 # Follow PR
